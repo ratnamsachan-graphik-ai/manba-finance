@@ -7,7 +7,7 @@ export default function Home() {
       <div className="w-full max-w-5xl mx-auto">
         <div className="flex justify-center mb-6">
           <Image 
-            src="https://static.wonderhfl.com/certificate_1e236d50c3.svg"
+            src="https://ik.imagekit.io/wekwjyn8z/834x217_9058b68dfd.svg"
             alt="Wonder Home Finance Logo"
             width={200}
             height={50}

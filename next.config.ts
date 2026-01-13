@@ -33,6 +33,12 @@ const nextConfig: NextConfig = {
         hostname: 'static.wonderhfl.com',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'ik.imagekit.io',
+        port: '',
+        pathname: '/**',
       }
     ],
   },
