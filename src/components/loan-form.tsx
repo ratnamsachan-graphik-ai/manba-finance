@@ -87,7 +87,7 @@ export function LoanForm() {
   return (
     <Card className="w-full shadow-lg">
       <CardHeader>
-        <CardTitle className="text-3xl font-bold text-center text-primary">Request a Call</CardTitle>
+        <CardTitle className="text-3xl font-bold text-center text-primary font-headline">Request a Call</CardTitle>
         <CardDescription className="text-center">
           Please share your details to get an instant callback from our executive.
         </CardDescription>
@@ -184,7 +184,7 @@ export function LoanForm() {
                   </FormControl>
                   <div className="space-y-1 leading-none">
                     <FormLabel>
-                      Agree to terms and conditions
+                      <a href="#" className="text-accent underline">Agree to terms and conditions</a>
                     </FormLabel>
                     <FormDescription>
                       I agree with the T&C and Privacy Policy. I authorize Wonder Home Finance or its representative to Call, WhatsApp, Email or SMS me with reference to my details and loan enquiry.
