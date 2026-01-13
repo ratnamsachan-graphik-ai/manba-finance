@@ -26,7 +26,7 @@ interface WinbackTransliterationResult {
 class NameTransliterationService {
   private readonly GEMINI_API_KEY: string;
   private readonly GEMINI_API_URL =
-    "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
+    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
 
   constructor() {
     this.GEMINI_API_KEY = process.env.NEXT_GEMINI_API_KEY || "";
