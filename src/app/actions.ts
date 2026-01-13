@@ -50,5 +50,3 @@ export async function submitLoanForm(data: LoanFormValues) {
     return { success: false, message: `An error occurred while submitting the form. ${errorMessage}` };
   }
 }
-
-    
