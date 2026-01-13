@@ -30,6 +30,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const defaultValues: Partial<LoanFormValues> = {
   callee_name: "",
@@ -58,7 +59,7 @@ const SectionTitle = ({ children }: { children: React.ReactNode }) => (
 
 export function LoanForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { toast } = useToast();
+  const [submissionStatus, setSubmissionStatus] = useState<{success: boolean; message: string} | null>(null);
 
   const form = useForm<LoanFormValues>({
     resolver: zodResolver(loanFormSchema),
@@ -67,25 +68,14 @@ export function LoanForm() {
 
   async function onSubmit(values: LoanFormValues) {
     setIsSubmitting(true);
+    setSubmissionStatus(null);
     const result = await submitLoanForm(values);
     setIsSubmitting(false);
 
+    setSubmissionStatus(result);
+
     if (result.success) {
-      toast({
-        title: "Success! Payload sent:",
-        description: (
-          <pre className="mt-2 w-full rounded-md bg-slate-950 p-4">
-            <code className="text-white">{JSON.stringify(result.data, null, 2)}</code>
-          </pre>
-        ),
-      });
       form.reset();
-    } else {
-      toast({
-        variant: "destructive",
-        title: "Uh oh! Something went wrong.",
-        description: result.message,
-      });
     }
   }
 
@@ -175,6 +165,15 @@ export function LoanForm() {
               <FormField control={form.control} name="cheq_hand" render={({ field }) => (<FormItem><FormLabel>Cheque Handover (Optional)</FormLabel><FormControl><Input placeholder="Details..." {...field} value={field.value ?? ""} /></FormControl><FormMessage /></FormItem>)} />
               <FormField control={form.control} name="payment_mode" render={({ field }) => (<FormItem><FormLabel>Payment Mode (Optional)</FormLabel><FormControl><Input placeholder="e.g., NACH, Post-dated cheques" {...field} value={field.value ?? ""} /></FormControl><FormMessage /></FormItem>)} />
             </div>
+            
+            {submissionStatus && (
+              <Alert variant={submissionStatus.success ? "default" : "destructive"} className={submissionStatus.success ? "bg-green-100 border-green-400 text-green-700" : ""}>
+                <AlertTitle>{submissionStatus.success ? "Success!" : "Error"}</AlertTitle>
+                <AlertDescription>
+                  {submissionStatus.message}
+                </AlertDescription>
+              </Alert>
+            )}
 
             <CardFooter className="flex justify-center p-0 pt-8">
               <Button type="submit" disabled={isSubmitting} size="lg" className="w-full max-w-xs bg-accent hover:bg-accent/90">
