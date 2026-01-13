@@ -8,7 +8,6 @@ import Link from "next/link";
 import { Loader2 } from "lucide-react";
 import { loanFormSchema, type LoanFormValues } from "@/app/form-schema";
 import { submitLoanForm } from "@/app/actions";
-import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -28,7 +27,13 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
@@ -48,8 +53,8 @@ const defaultValues: Partial<LoanFormValues> = {
   loan_start_date: "2026-02-01",
   emi_due_date: "2026-03-01",
   loan_end_date: "2046-02-01",
-  cheq_hand: "",
-  payment_mode: "",
+  cheq_hand: "Recieved",
+  payment_mode: "NACH",
   terms_agreed: false,
 };
 
@@ -162,8 +167,49 @@ export function LoanForm() {
 
             <SectionTitle>Other Details</SectionTitle>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField control={form.control} name="cheq_hand" render={({ field }) => (<FormItem><FormLabel>Cheque Handover (Optional)</FormLabel><FormControl><Input placeholder="Details..." {...field} value={field.value ?? ""} /></FormControl><FormMessage /></FormItem>)} />
-              <FormField control={form.control} name="payment_mode" render={({ field }) => (<FormItem><FormLabel>Payment Mode (Optional)</FormLabel><FormControl><Input placeholder="e.g., NACH, Post-dated cheques" {...field} value={field.value ?? ""} /></FormControl><FormMessage /></FormItem>)} />
+              <FormField
+                control={form.control}
+                name="cheq_hand"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Cheque Handover (Optional)</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select status" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="Recieved">Recieved</SelectItem>
+                        <SelectItem value="Non Recieved">Non Recieved</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="payment_mode"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Payment Mode (Optional)</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a payment mode" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="NACH">NACH</SelectItem>
+                        <SelectItem value="ECS">ECS</SelectItem>
+                        <SelectItem value="PDC">PDC</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
             
             {submissionStatus && (
