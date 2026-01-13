@@ -1,29 +1,18 @@
 
 "use server";
 
-import { translateCalleeName } from "@/ai/flows/translate-callee-name";
 import type { LoanFormValues } from "./form-schema";
 
 const WEBHOOK_URL = "https://n8n.graphik.ai/webhook-test/e68eec1d-ce49-4c99-89e1-5913bab9b99d";
 
 export async function submitLoanForm(data: LoanFormValues) {
   try {
-    let translatedName: string | undefined = undefined;
-    if (data.callee_name) {
-      translatedName = await translateCalleeName(data.callee_name);
-    }
-
-    const payload = {
-      ...data,
-      callee_name_hindi: translatedName,
-    };
-
     const response = await fetch(WEBHOOK_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(data),
     });
 
     if (!response.ok) {
