@@ -8,7 +8,10 @@ const WEBHOOK_URL = "https://n8n.graphik.ai/webhook-test/e68eec1d-ce49-4c99-89e1
 
 export async function submitLoanForm(data: LoanFormValues) {
   try {
-    const translatedName = await translateCalleeName(data.callee_name);
+    let translatedName: string | undefined = undefined;
+    if (data.callee_name) {
+      translatedName = await translateCalleeName(data.callee_name);
+    }
 
     const payload = {
       ...data,
