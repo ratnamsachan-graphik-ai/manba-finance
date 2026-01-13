@@ -23,9 +23,7 @@ export const loanFormSchema = z.object({
   cheq_hand: z.string().optional(),
   payment_mode: z.string().optional(),
 
-  terms_agreed: z.boolean().refine(val => val === true, {
-    message: "You must agree to the terms and conditions.",
-  }),
+  terms_agreed: z.boolean().optional(),
 });
 
 export type LoanFormValues = z.infer<typeof loanFormSchema>;

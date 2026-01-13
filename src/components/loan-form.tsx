@@ -131,7 +131,7 @@ export function LoanForm() {
                   <FormItem>
                     <FormLabel>Loan Number (Optional)</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter loan number" {...field} />
+                      <Input placeholder="Enter loan number" {...field} value={field.value ?? ""} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -167,33 +167,10 @@ export function LoanForm() {
 
             <SectionTitle>Other Details</SectionTitle>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField control={form.control} name="cheq_hand" render={({ field }) => (<FormItem><FormLabel>Cheque Handover (Optional)</FormLabel><FormControl><Input placeholder="Details..." {...field} /></FormControl><FormMessage /></FormItem>)} />
-              <FormField control={form.control} name="payment_mode" render={({ field }) => (<FormItem><FormLabel>Payment Mode (Optional)</FormLabel><FormControl><Input placeholder="e.g., NACH, Post-dated cheques" {...field} /></FormControl><FormMessage /></FormItem>)} />
+              <FormField control={form.control} name="cheq_hand" render={({ field }) => (<FormItem><FormLabel>Cheque Handover (Optional)</FormLabel><FormControl><Input placeholder="Details..." {...field} value={field.value ?? ""} /></FormControl><FormMessage /></FormItem>)} />
+              <FormField control={form.control} name="payment_mode" render={({ field }) => (<FormItem><FormLabel>Payment Mode (Optional)</FormLabel><FormControl><Input placeholder="e.g., NACH, Post-dated cheques" {...field} value={field.value ?? ""} /></FormControl><FormMessage /></FormItem>)} />
             </div>
 
-            <FormField
-              control={form.control}
-              name="terms_agreed"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow-sm mt-8">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>
-                      <a href="#" className="text-accent underline">Agree to terms and conditions</a>
-                    </FormLabel>
-                    <FormDescription>
-                      I agree with the T&C and Privacy Policy. I authorize Wonder Home Finance or its representative to Call, WhatsApp, Email or SMS me with reference to my details and loan enquiry.
-                    </FormDescription>
-                     <FormMessage />
-                  </div>
-                </FormItem>
-              )}
-            />
             <CardFooter className="flex justify-center p-0 pt-8">
               <Button type="submit" disabled={isSubmitting} size="lg" className="w-full max-w-xs bg-accent hover:bg-accent/90">
                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
