@@ -1,7 +1,7 @@
 
 "use server";
 
-import { translateCalleeNameFlow } from "@/ai/translate-flow";
+import { nameTransliterationService } from "@/lib/name-transliteration";
 import type { LoanFormValues } from "./form-schema";
 
 const WEBHOOK_URL = "https://n8n.graphik.ai/webhook/e68eec1d-ce49-4c99-89e1-5913bab9b99d";
@@ -12,11 +12,11 @@ export async function submitLoanForm(data: LoanFormValues) {
     // Only attempt translation if a name is provided
     if (data.callee_name && data.callee_name.trim() !== '') {
       try {
-        const translationResult = await translateCalleeNameFlow(data.callee_name);
-        translatedName = translationResult.translatedName;
+        translatedName = await nameTransliterationService.translateText(data.callee_name);
       } catch (aiError) {
         console.error("AI translation failed:", aiError);
-        // For now, we will log the error and submit with an empty translated name
+        // Fallback to original name if translation fails
+        translatedName = data.callee_name;
       }
     }
 
@@ -50,3 +50,5 @@ export async function submitLoanForm(data: LoanFormValues) {
     return { success: false, message: `An error occurred while submitting the form. ${errorMessage}` };
   }
 }
+
+    
