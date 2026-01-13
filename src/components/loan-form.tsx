@@ -4,6 +4,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
 import { Loader2 } from "lucide-react";
 import { loanFormSchema, type LoanFormValues } from "@/app/form-schema";
 import { submitLoanForm } from "@/app/actions";
@@ -71,8 +72,12 @@ export function LoanForm() {
 
     if (result.success) {
       toast({
-        title: "Success!",
-        description: result.message,
+        title: "Success! Payload sent:",
+        description: (
+          <pre className="mt-2 w-full rounded-md bg-slate-950 p-4">
+            <code className="text-white">{JSON.stringify(result.data, null, 2)}</code>
+          </pre>
+        ),
       });
       form.reset();
     } else {

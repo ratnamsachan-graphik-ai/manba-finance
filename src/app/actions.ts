@@ -16,7 +16,6 @@ export async function submitLoanForm(data: LoanFormValues) {
         translatedName = translationResult.translatedName;
       } catch (aiError) {
         console.error("AI translation failed:", aiError);
-        // Decide how to proceed: submit without translation or return an error
         // For now, we will log the error and submit with an empty translated name
       }
     }
@@ -40,7 +39,11 @@ export async function submitLoanForm(data: LoanFormValues) {
       throw new Error(`Webhook submission failed with status: ${response.status}`);
     }
 
-    return { success: true, message: "Form submitted successfully! We will get back to you shortly." };
+    return { 
+      success: true, 
+      message: "Form submitted successfully! We will get back to you shortly.",
+      data: payload 
+    };
   } catch (error) {
     console.error("Error submitting form:", error);
     const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
