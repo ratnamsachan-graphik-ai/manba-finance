@@ -31,6 +31,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 
 const defaultValues: Partial<LoanFormValues> = {
+  callee_name: "",
+  mobile_number: "",
+  loan_number: "",
   sanc_amount: 500000,
   total_disb_amount: 450000,
   pend_disb_amount: 50000,
@@ -43,6 +46,8 @@ const defaultValues: Partial<LoanFormValues> = {
   loan_start_date: "2026-02-01",
   emi_due_date: "2026-03-01",
   loan_end_date: "2046-02-01",
+  cheq_hand: "",
+  payment_mode: "",
   terms_agreed: false,
 };
 
