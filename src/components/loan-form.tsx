@@ -4,7 +4,7 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Link from "next/link";
+import { format, addMonths } from "date-fns";
 import { Loader2, Lock } from "lucide-react";
 import { loanFormSchema, type LoanFormValues } from "@/app/form-schema";
 import { submitLoanForm } from "@/app/actions";
@@ -34,7 +34,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Slider } from "@/components/ui/slider";
 
@@ -77,6 +76,7 @@ export function LoanForm() {
   const totalDisbAmount = watch("total_disb_amount");
   const roi = watch("roi");
   const loanTenor = watch("loan_tenor");
+  const loanStartDate = watch("loan_start_date");
 
   useEffect(() => {
     const sanctioned = Number(sancAmount) || 0;
@@ -97,11 +97,25 @@ export function LoanForm() {
         (Math.pow(1 + monthlyRate, tenor) - 1);
       
       setValue("emi_amount", Math.round(emi));
-    } else {
-      // If any value is invalid, you might want to clear the EMI or set to 0
-      // setValue("emi_amount", 0);
     }
   }, [totalDisbAmount, roi, loanTenor, setValue]);
+
+  useEffect(() => {
+    const startDate = loanStartDate;
+    const tenor = Number(loanTenor) || 0;
+
+    if (startDate && tenor > 0) {
+      try {
+        const start = new Date(startDate);
+        // The time zone offset can cause the date to be off by one day, so we adjust for it.
+        const zonedStart = new Date(start.valueOf() + start.getTimezoneOffset() * 60 * 1000);
+        const endDate = addMonths(zonedStart, tenor);
+        setValue("loan_end_date", format(endDate, "yyyy-MM-dd"));
+      } catch (e) {
+        console.error("Invalid date for calculation", e)
+      }
+    }
+  }, [loanStartDate, loanTenor, setValue]);
 
   async function onSubmit(values: LoanFormValues) {
     setIsSubmitting(true);
@@ -211,7 +225,7 @@ export function LoanForm() {
                   <FormField control={form.control} name="loan_disb_date" render={({ field }) => (<FormItem><FormLabel>Loan Disbursed Date</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>)} />
                   <FormField control={form.control} name="loan_start_date" render={({ field }) => (<FormItem><FormLabel>Loan Start Date</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>)} />
                   <FormField control={form.control} name="emi_due_date" render={({ field }) => (<FormItem><FormLabel>First EMI Due Date</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                  <FormField control={form.control} name="loan_end_date" render={({ field }) => (<FormItem><FormLabel>Loan End Date</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                  <FormField control={form.control} name="loan_end_date" render={({ field }) => (<FormItem><FormLabel>Loan End Date</FormLabel><FormControl><Input type="date" {...field} readOnly className="bg-gray-100" /></FormControl><FormMessage /></FormItem>)} />
               </div>
             </div>
 
@@ -299,3 +313,5 @@ export function LoanForm() {
     </Card>
   );
 }
+
+    
