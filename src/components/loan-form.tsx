@@ -60,7 +60,7 @@ const defaultValues: Partial<LoanFormValues> = {
 };
 
 const SectionTitle = ({ children }: { children: React.ReactNode }) => (
-  <h3 className="text-[24px] font-headline text-primary">{children}</h3>
+  <h3 className="text-[24px] font-headline text-primary section-title">{children}</h3>
 );
 
 export function LoanForm() {
@@ -86,18 +86,18 @@ export function LoanForm() {
   }
 
   return (
-    <Card className="w-full shadow-lg">
+    <Card className="w-full shadow-[0_10px_40px_rgba(51,48,69,0.08),0_2px_8px_rgba(51,48,69,0.04)] transition-all hover:shadow-[0_15px_50px_rgba(51,48,69,0.12),0_4px_10px_rgba(51,48,69,0.08)] hover:-translate-y-1">
       <CardHeader>
         <CardTitle className="text-[44px] font-bold text-center text-primary font-headline">Request a Call</CardTitle>
         <CardDescription className="text-center">
           Please share your details to get an instant callback from our executive.
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-10">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             
-            <div className="space-y-4">
+            <div className="space-y-6">
               <SectionTitle>Personal Details</SectionTitle>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
@@ -142,9 +142,7 @@ export function LoanForm() {
               </div>
             </div>
 
-            <Separator className="my-6" />
-
-            <div className="space-y-4">
+            <div className="space-y-6">
               <SectionTitle>Loan Amount Details</SectionTitle>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   <FormField control={form.control} name="sanc_amount" render={({ field }) => (<FormItem><FormLabel>Sanctioned Amount</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>)} />
@@ -176,9 +174,7 @@ export function LoanForm() {
               </div>
             </div>
 
-            <Separator className="my-6" />
-
-            <div className="space-y-4">
+            <div className="space-y-6">
               <SectionTitle>Dates & Deadlines</SectionTitle>
                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
                   <FormField control={form.control} name="loan_disb_date" render={({ field }) => (<FormItem><FormLabel>Loan Disbursed Date</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>)} />
@@ -188,9 +184,7 @@ export function LoanForm() {
               </div>
             </div>
 
-            <Separator className="my-6" />
-
-            <div className="space-y-4">
+            <div className="space-y-6">
               <SectionTitle>Other Details</SectionTitle>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
@@ -248,8 +242,8 @@ export function LoanForm() {
               </Alert>
             )}
 
-            <CardFooter className="flex flex-col items-center justify-center p-0 pt-8 gap-4">
-              <Button type="submit" disabled={isSubmitting} size="lg" className="w-full max-w-xs bg-accent hover:bg-accent/90">
+            <CardFooter className="flex flex-col items-center justify-center p-0 pt-6 gap-4">
+              <Button type="submit" disabled={isSubmitting} size="lg" className="w-full max-w-xs gradient-button text-white">
                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Request a Call
               </Button>
