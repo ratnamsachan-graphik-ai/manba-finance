@@ -176,13 +176,41 @@ export function LoanForm() {
       return;
     }
     const values = form.getValues();
+    const address_name = (values.callee_name || '').split(' ')[0];
     const payload = {
       mobile_number: values.mobile_number,
       campaign_type: "gold_loan",
       callee_name: values.callee_name,
+      address_name: address_name,
       ...values,
     };
-    setPayloadToShow(JSON.stringify(payload, null, 2));
+    // remove callee_name again as it's already in payload
+    delete (payload as Partial<LoanFormValues>).callee_name;
+    // reconstruct to have callee_name and address_name at the top for readability
+     const finalPayload = {
+      mobile_number: payload.mobile_number,
+      campaign_type: payload.campaign_type,
+      callee_name: values.callee_name,
+      address_name: address_name,
+      loan_number: payload.loan_number,
+      sanc_amount: payload.sanc_amount,
+      total_disb_amount: payload.total_disb_amount,
+      pend_disb_amount: payload.pend_disb_amount,
+      proce_fee_amount: payload.proce_fee_amount,
+      tot_ded_amount: payload.tot_ded_amount,
+      roi: payload.roi,
+      loan_tenor: payload.loan_tenor,
+      emi_amount: payload.emi_amount,
+      loan_disb_date: payload.loan_disb_date,
+      emi_due_date: payload.emi_due_date,
+      loan_end_date: payload.loan_end_date,
+      cheq_hand: payload.cheq_hand,
+      payment_mode: payload.payment_mode,
+      terms_agreed: payload.terms_agreed,
+      loan_start_date: payload.loan_start_date,
+    };
+
+    setPayloadToShow(JSON.stringify(finalPayload, null, 2));
     setIsPayloadDialogOpen(true);
   }
 
