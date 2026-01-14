@@ -5,7 +5,7 @@ export const loanFormSchema = z.object({
   mobile_number: z.string().regex(/^[0-9]{10}$/, { message: "Please enter a valid 10-digit mobile number." }),
   loan_number: z.string().min(1, { message: "Loan number is required." }),
   
-  sanc_amount: z.coerce.number({invalid_type_error: "Sanctioned amount is required."}).positive({ message: "Amount must be a positive number." }),
+  sanc_amount: z.coerce.number({invalid_type_error: "Sanctioned amount is required."}).positive({ message: "Amount must be a positive number." }).optional(),
   total_disb_amount: z.coerce.number({invalid_type_error: "Disbursed amount is required."}).positive({ message: "Amount must be a positive number." }),
   pend_disb_amount: z.coerce.number().nonnegative({ message: "Pending amount cannot be negative." }),
   proce_fee_amount: z.coerce.number({invalid_type_error: "Processing fee is required."}).positive({ message: "Fee must be a positive number." }),
@@ -27,3 +27,5 @@ export const loanFormSchema = z.object({
 });
 
 export type LoanFormValues = z.infer<typeof loanFormSchema>;
+
+    
