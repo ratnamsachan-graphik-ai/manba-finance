@@ -41,15 +41,15 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+    if (!callee_name) {
+      return NextResponse.json(
+        { error: "Callee name is required" },
+        { status: 400 }
+      );
+    }
 
     // Validate Winback-specific fields
     if (campaign_type === "winback") {
-      if (!callee_name) {
-        return NextResponse.json(
-          { error: "Callee name is required for Winback campaign" },
-          { status: 400 }
-        );
-      }
       if (!previous_branch) {
         return NextResponse.json(
           { error: "Previous branch is required for Winback campaign" },
@@ -87,59 +87,57 @@ export async function POST(request: NextRequest) {
     }
 
     // Translate names to Hindi
-    let calleeNameHindi = callee_name || "";
-    let addressNameHindi = callee_name || "";
+    let calleeNameHindi = callee_name;
+    let addressNameHindi = callee_name.split(' ')[0]; // Default to first name
     let previousBranchHindi = previous_branch || "";
 
-    // Always translate the callee_name to Hindi if provided
-    if (callee_name && callee_name.trim() !== "") {
-      try {
-        if (campaign_type === "winback" && previous_branch) {
-          // For winback campaign, translate both name and branch
-          const translation =
-            await nameTransliterationService.translateWinbackData(
-              callee_name,
-              previous_branch
-            );
+    try {
+      if (campaign_type === "winback" && previous_branch) {
+        // For winback campaign, translate both name and branch
+        const translation =
+          await nameTransliterationService.translateWinbackData(
+            callee_name,
+            previous_branch
+          );
 
-          calleeNameHindi = translation.customerNameHindi;
-          addressNameHindi = translation.addressNameHindi;
-          previousBranchHindi = translation.branchNameHindi;
+        calleeNameHindi = translation.customerNameHindi;
+        addressNameHindi = translation.addressNameHindi;
+        previousBranchHindi = translation.branchNameHindi;
 
-          console.log("[API] Winback translations:", {
-            calleeName: `${callee_name} → ${calleeNameHindi}`,
-            addressName: `First name → ${addressNameHindi}`,
-            previousBranch: `${previous_branch} → ${previousBranchHindi}`,
-            processingTime: `${translation.processingTime}ms`,
-          });
-        } else {
-          // For regular campaign, just translate the customer name
-          const translation =
-            await nameTransliterationService.translateCustomerName(callee_name);
+        console.log("[API] Winback translations:", {
+          calleeName: `${callee_name} → ${calleeNameHindi}`,
+          addressName: `First name → ${addressNameHindi}`,
+          previousBranch: `${previous_branch} → ${previousBranchHindi}`,
+          processingTime: `${translation.processingTime}ms`,
+        });
+      } else {
+        // For regular campaign, just translate the customer name
+        const translation =
+          await nameTransliterationService.translateCustomerName(callee_name);
 
-          calleeNameHindi = translation.customerNameHindi;
-          addressNameHindi = translation.addressNameHindi;
+        calleeNameHindi = translation.customerNameHindi;
+        addressNameHindi = translation.addressNameHindi;
 
-          console.log("[API] Name translations:", {
-            calleeName: `${callee_name} → ${calleeNameHindi}`,
-            addressName: `First name → ${addressNameHindi}`,
-            processingTime: `${translation.processingTime}ms`,
-          });
-        }
-      } catch (error) {
-        console.error(
-          "[API] Translation failed, using original values:",
-          error
-        );
-        // Fallback to original values if translation fails
-        calleeNameHindi = callee_name || "";
-        addressNameHindi = callee_name || "";
+        console.log("[API] Name translations:", {
+          calleeName: `${callee_name} → ${calleeNameHindi}`,
+          addressName: `First name → ${addressNameHindi}`,
+          processingTime: `${translation.processingTime}ms`,
+        });
       }
+    } catch (error) {
+      console.error(
+        "[API] Translation failed, using original values:",
+        error
+      );
+      // Fallback to original values if translation fails
+      calleeNameHindi = callee_name;
+      addressNameHindi = callee_name.split(' ')[0];
     }
+    
 
     // Prepare payload for outbound calling API
     const payload: any = {
-      name: callee_name ?? "customer",
+      name: callee_name,
       mobile_number: formattedNumber,
       agent_id: agentId,
       from_number: process.env.NEXT_CALL_FROM_NUMBER || "",
@@ -164,9 +162,9 @@ export async function POST(request: NextRequest) {
     // Add custom_args_values with all form fields and Hindi translations
     const custom_args_values: any = {
       // Always include Hindi translated name if available
-      callee_name: calleeNameHindi || callee_name || "",
+      callee_name: calleeNameHindi || callee_name,
       callee_name_hindi: calleeNameHindi || "",
-      address_name: addressNameHindi || "",
+      address_name: addressNameHindi || callee_name.split(' ')[0],
       mobile_number: formattedNumber,
       current_date_time: new Date().toISOString(),
       max_rpg_our: 8787,
