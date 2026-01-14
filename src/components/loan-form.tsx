@@ -96,7 +96,7 @@ export function LoanForm() {
         (principal * monthlyRate * Math.pow(1 + monthlyRate, tenor)) /
         (Math.pow(1 + monthlyRate, tenor) - 1);
       
-      setValue("emi_amount", parseFloat(emi.toFixed(2)));
+      setValue("emi_amount", Math.round(emi));
     } else {
       // If any value is invalid, you might want to clear the EMI or set to 0
       // setValue("emi_amount", 0);
