@@ -35,11 +35,20 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+} from "@/components/ui/alert-dialog";
 
 const defaultValues: Partial<LoanFormValues> = {
   callee_name: "",
   mobile_number: "",
-  loan_number: "",
+  loan_number: undefined,
   sanc_amount: undefined,
   total_disb_amount: undefined,
   pend_disb_amount: 0,
@@ -63,6 +72,8 @@ const SectionTitle = ({ children }: { children: React.ReactNode }) => (
 export function LoanForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionStatus, setSubmissionStatus] = useState<{success: boolean; message: string} | null>(null);
+  const [isPayloadDialogOpen, setIsPayloadDialogOpen] = useState(false);
+  const [payloadToShow, setPayloadToShow] = useState<string | null>(null);
 
   const form = useForm<LoanFormValues>({
     resolver: zodResolver(loanFormSchema),
@@ -70,11 +81,13 @@ export function LoanForm() {
     mode: "onChange",
   });
 
-  const { watch, setValue } = form;
+  const { watch, setValue, trigger } = form;
   const sancAmount = watch("sanc_amount");
   const totalDisbAmount = watch("total_disb_amount");
+  const totDeductionAmount = watch("tot_ded_amount");
   const roi = watch("roi");
   const loanTenor = watch("loan_tenor");
+  const loanDisbDate = watch("loan_disb_date");
   const emiDueDate = watch("emi_due_date");
 
   useEffect(() => {
@@ -82,7 +95,16 @@ export function LoanForm() {
     const disbursed = Number(totalDisbAmount) || 0;
     const pending = sanctioned - disbursed;
     setValue("pend_disb_amount", pending >= 0 ? pending : 0);
-  }, [sancAmount, totalDisbAmount, setValue]);
+    if(sancAmount !== undefined && totalDisbAmount !== undefined) {
+        trigger("total_disb_amount");
+    }
+  }, [sancAmount, totalDisbAmount, setValue, trigger]);
+
+  useEffect(() => {
+      if (sancAmount !== undefined && totDeductionAmount !== undefined) {
+          trigger("tot_ded_amount");
+      }
+  }, [sancAmount, totDeductionAmount, trigger]);
   
   useEffect(() => {
     const principal = Number(totalDisbAmount) || 0;
@@ -102,6 +124,9 @@ export function LoanForm() {
   }, [totalDisbAmount, roi, loanTenor, setValue]);
 
   useEffect(() => {
+    if (loanDisbDate && emiDueDate) {
+        trigger("loan_disb_date");
+    }
     const firstEmiDate = emiDueDate;
     const tenor = Number(loanTenor) || 0;
 
@@ -127,7 +152,7 @@ export function LoanForm() {
         setValue("loan_start_date", "");
         setValue("loan_end_date", "");
     }
-  }, [emiDueDate, loanTenor, setValue]);
+  }, [emiDueDate, loanTenor, setValue, loanDisbDate, trigger]);
 
 
   async function onSubmit(values: LoanFormValues) {
@@ -143,183 +168,222 @@ export function LoanForm() {
     }
   }
 
-  return (
-    <Card className="w-full shadow-[0_10px_40px_rgba(51,48,69,0.08),0_2px_8px_rgba(51,48,69,0.04)] transition-all hover:shadow-[0_15px_50px_rgba(51,48,69,0.12),0_4px_10px_rgba(51,48,69,0.08)] hover:-translate-y-1">
-      <CardHeader>
-        <CardTitle className="text-[44px] font-bold text-center font-headline text-accent">Request a Call</CardTitle>
-        <CardDescription className="text-center">
-          Please share your details to get an instant callback from our executive.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="p-10">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-              
-              <div className="space-y-6">
-                <SectionTitle>Personal Details</SectionTitle>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormField
-                    control={form.control}
-                    name="callee_name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Name</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Enter your full name" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="mobile_number"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Phone Number</FormLabel>
-                        <FormControl>
-                          <Input type="tel" placeholder="Enter your 10-digit number" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="loan_number"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Loan Number</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Enter loan number" {...field} value={field.value ?? ""} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
+  async function handleShowPayload() {
+    const isValid = await form.trigger();
+    if (!isValid) {
+      setPayloadToShow("Form is invalid. Please fix the errors before viewing the payload.");
+      setIsPayloadDialogOpen(true);
+      return;
+    }
+    const values = form.getValues();
+    const payload = {
+      mobile_number: values.mobile_number,
+      campaign_type: "gold_loan",
+      callee_name: values.callee_name,
+      ...values,
+    };
+    setPayloadToShow(JSON.stringify(payload, null, 2));
+    setIsPayloadDialogOpen(true);
+  }
 
-              <div className="space-y-6">
-                <SectionTitle>Loan Amount Details</SectionTitle>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <FormField control={form.control} name="sanc_amount" render={({ field }) => (<FormItem><FormLabel>Sanctioned Amount</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(e.target.valueAsNumber)} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)} />
-                    <FormField control={form.control} name="total_disb_amount" render={({ field }) => (<FormItem><FormLabel>Total Disbursed Amount</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(e.target.valueAsNumber)} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)} />
-                    <FormField control={form.control} name="pend_disb_amount" render={({ field }) => (<FormItem><FormLabel>Pending Disbursed Amount</FormLabel><FormControl><Input type="number" {...field} readOnly className="bg-gray-100" value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)} />
-                    <FormField control={form.control} name="proce_fee_amount" render={({ field }) => (<FormItem><FormLabel>Processing Fee Amount</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(e.target.valueAsNumber)} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)} />
-                    <FormField control={form.control} name="tot_ded_amount" render={({ field }) => (<FormItem><FormLabel>Total Deduction Amount</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(e.target.valueAsNumber)} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)} />
+  return (
+    <>
+      <Card className="w-full shadow-[0_10px_40px_rgba(51,48,69,0.08),0_2px_8px_rgba(51,48,69,0.04)] transition-all hover:shadow-[0_15px_50px_rgba(51,48,69,0.12),0_4px_10px_rgba(51,48,69,0.08)] hover:-translate-y-1">
+        <CardHeader>
+          <CardTitle className="text-[44px] font-bold text-center font-headline text-accent">Request a Call</CardTitle>
+          <CardDescription className="text-center">
+            Please share your details to get an instant callback from our executive.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="p-10">
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                
+                <div className="space-y-6">
+                  <SectionTitle>Personal Details</SectionTitle>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <FormField
                       control={form.control}
-                      name="roi"
+                      name="callee_name"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Rate of Interest (%)</FormLabel>
+                          <FormLabel>Name</FormLabel>
                           <FormControl>
-                            <Input type="number" {...field} onChange={e => field.onChange(e.target.valueAsNumber)} value={field.value ?? ''} />
+                            <Input placeholder="Enter your full name" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
-                    <FormField control={form.control} name="loan_tenor" render={({ field }) => (<FormItem><FormLabel>Loan Tenor (months)</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(e.target.valueAsNumber)} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)} />
-                    <FormField control={form.control} name="emi_amount" render={({ field }) => (<FormItem><FormLabel>EMI Amount</FormLabel><FormControl><Input type="number" {...field} readOnly className="bg-gray-100" value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)} />
-                </div>
-              </div>
-
-              <div className="space-y-6">
-                <SectionTitle>Dates & Deadlines</SectionTitle>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
-                    <FormField control={form.control} name="loan_disb_date" render={({ field }) => (<FormItem><FormLabel>Loan Disbursed Date</FormLabel><FormControl><Input type="date" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)} />
-                    <FormField control={form.control} name="emi_due_date" render={({ field }) => (<FormItem><FormLabel>First EMI Due Date</FormLabel><FormControl><Input type="date" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)} />
-                    <FormField control={form.control} name="loan_end_date" render={({ field }) => (<FormItem><FormLabel>Loan End Date</FormLabel><FormControl><Input type="date" {...field} value={field.value ?? ''} readOnly className="bg-gray-100" /></FormControl><FormMessage /></FormItem>)} />
-                </div>
-              </div>
-
-              <div className="space-y-6">
-                <SectionTitle>Other Details</SectionTitle>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormField
-                    control={form.control}
-                    name="cheq_hand"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Cheque Handover</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
+                    <FormField
+                      control={form.control}
+                      name="mobile_number"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Phone Number</FormLabel>
                           <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select status" />
-                            </SelectTrigger>
+                            <Input type="tel" placeholder="Enter your 10-digit number" {...field} />
                           </FormControl>
-                          <SelectContent>
-                            <SelectItem value="Recieved">Recieved</SelectItem>
-                            <SelectItem value="Non Recieved">Non Recieved</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="payment_mode"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Payment Mode</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="loan_number"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Loan Number</FormLabel>
                           <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select a payment mode" />
-                            </SelectTrigger>
+                            <Input placeholder="Enter loan number" {...field} value={field.value ?? ""} />
                           </FormControl>
-                          <SelectContent>
-                            <SelectItem value="NACH">NACH</SelectItem>
-                            <SelectItem value="ECS">ECS</SelectItem>
-                            <SelectItem value="PDC">PDC</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                 </div>
-              </div>
-              
-              {submissionStatus && (
-                <Alert 
-                  variant={submissionStatus.success ? "default" : "destructive"} 
-                  className={`
-                    ${submissionStatus.success ? "bg-green-100 border-green-400 text-green-700" : ""}
-                    data-[state=open]:animate-in data-[state=closed]:animate-out 
-                    data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 
-                    data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 
-                    data-[side=bottom]:slide-in-from-top-[100%] data-[side=top]:slide-out-to-top-[100%]
-                  `}
-                  data-state={submissionStatus ? "open" : "closed"}
-                  >
-                  <AlertTitle>{submissionStatus.success ? "Success!" : "Error"}</AlertTitle>
-                  <AlertDescription>
-                    {submissionStatus.message}
-                  </AlertDescription>
-                </Alert>
-              )}
 
-              <CardFooter className="flex flex-col items-center justify-center p-0 pt-6 gap-4">
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full max-w-sm">
-                  <Button type="submit" disabled={isSubmitting} size="lg" className="w-full gradient-button text-white">
-                    {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    Request a Call
-                  </Button>
+                <div className="space-y-6">
+                  <SectionTitle>Loan Amount Details</SectionTitle>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      <FormField control={form.control} name="sanc_amount" render={({ field }) => (<FormItem><FormLabel>Sanctioned Amount</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(parseFloat(e.target.value) || undefined)} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)} />
+                      <FormField control={form.control} name="total_disb_amount" render={({ field }) => (<FormItem><FormLabel>Total Disbursed Amount</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(parseFloat(e.target.value) || undefined)} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)} />
+                      <FormField control={form.control} name="pend_disb_amount" render={({ field }) => (<FormItem><FormLabel>Pending Disbursed Amount</FormLabel><FormControl><Input type="number" {...field} readOnly className="bg-gray-100" value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)} />
+                      <FormField control={form.control} name="proce_fee_amount" render={({ field }) => (<FormItem><FormLabel>Processing Fee Amount</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(parseFloat(e.target.value) || undefined)} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)} />
+                      <FormField control={form.control} name="tot_ded_amount" render={({ field }) => (<FormItem><FormLabel>Total Deduction Amount</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(parseFloat(e.target.value) || undefined)} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)} />
+                      <FormField
+                        control={form.control}
+                        name="roi"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Rate of Interest (%)</FormLabel>
+                            <FormControl>
+                              <Input type="number" {...field} onChange={e => field.onChange(parseFloat(e.target.value) || undefined)} value={field.value ?? ''} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField control={form.control} name="loan_tenor" render={({ field }) => (<FormItem><FormLabel>Loan Tenor (months)</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(parseFloat(e.target.value) || undefined)} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)} />
+                      <FormField control={form.control} name="emi_amount" render={({ field }) => (<FormItem><FormLabel>EMI Amount</FormLabel><FormControl><Input type="number" {...field} readOnly className="bg-gray-100" value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)} />
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 text-xs text-muted-foreground mt-2">
-                  <Lock className="h-3 w-3" />
-                  <span>Your information is secure</span>
+
+                <div className="space-y-6">
+                  <SectionTitle>Dates & Deadlines</SectionTitle>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+                      <FormField control={form.control} name="loan_disb_date" render={({ field }) => (<FormItem><FormLabel>Loan Disbursed Date</FormLabel><FormControl><Input type="date" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)} />
+                      <FormField control={form.control} name="emi_due_date" render={({ field }) => (<FormItem><FormLabel>First EMI Due Date</FormLabel><FormControl><Input type="date" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)} />
+                      <FormField control={form.control} name="loan_end_date" render={({ field }) => (<FormItem><FormLabel>Loan End Date</FormLabel><FormControl><Input type="date" {...field} value={field.value ?? ''} readOnly className="bg-gray-100" /></FormControl><FormMessage /></FormItem>)} />
+                  </div>
                 </div>
-              </CardFooter>
-            </form>
-          </Form>
-      </CardContent>
-    </Card>
+
+                <div className="space-y-6">
+                  <SectionTitle>Other Details</SectionTitle>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField
+                      control={form.control}
+                      name="cheq_hand"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Cheque Handover</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select status" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="Recieved">Recieved</SelectItem>
+                              <SelectItem value="Non Recieved">Non Recieved</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="payment_mode"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Payment Mode</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select a payment mode" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="NACH">NACH</SelectItem>
+                              <SelectItem value="ECS">ECS</SelectItem>
+                              <SelectItem value="PDC">PDC</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+                
+                {submissionStatus && (
+                  <Alert 
+                    variant={submissionStatus.success ? "default" : "destructive"} 
+                    className={`
+                      ${submissionStatus.success ? "bg-green-100 border-green-400 text-green-700" : ""}
+                      data-[state=open]:animate-in data-[state=closed]:animate-out 
+                      data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 
+                      data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 
+                      data-[side=bottom]:slide-in-from-top-[100%] data-[side=top]:slide-out-to-top-[100%]
+                    `}
+                    data-state={submissionStatus ? "open" : "closed"}
+                    >
+                    <AlertTitle>{submissionStatus.success ? "Success!" : "Error"}</AlertTitle>
+                    <AlertDescription>
+                      {submissionStatus.message}
+                    </AlertDescription>
+                  </Alert>
+                )}
+
+                <CardFooter className="flex flex-col items-center justify-center p-0 pt-6 gap-4">
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full max-w-sm">
+                    <Button type="submit" disabled={isSubmitting} size="lg" className="w-full gradient-button text-white">
+                      {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      Request a Call
+                    </Button>
+                    <Button type="button" variant="outline" size="lg" className="w-full" onClick={handleShowPayload}>
+                      Show Payload
+                    </Button>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground mt-2">
+                    <Lock className="h-3 w-3" />
+                    <span>Your information is secure</span>
+                  </div>
+                </CardFooter>
+              </form>
+            </Form>
+        </CardContent>
+      </Card>
+      <AlertDialog open={isPayloadDialogOpen} onOpenChange={setIsPayloadDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>API Payload</AlertDialogTitle>
+            <AlertDialogDescription>
+              This is the JSON data that would be sent to the API.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="mt-4 max-h-96 overflow-y-auto rounded bg-gray-100 p-4">
+            <pre className="text-sm text-gray-800 whitespace-pre-wrap break-all">
+              <code>{payloadToShow}</code>
+            </pre>
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Close</AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
-
-    
