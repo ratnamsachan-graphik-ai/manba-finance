@@ -75,6 +75,8 @@ export function LoanForm() {
   const { watch, setValue } = form;
   const sancAmount = watch("sanc_amount");
   const totalDisbAmount = watch("total_disb_amount");
+  const roi = watch("roi");
+  const loanTenor = watch("loan_tenor");
 
   useEffect(() => {
     const sanctioned = Number(sancAmount) || 0;
@@ -82,6 +84,24 @@ export function LoanForm() {
     const pending = sanctioned - disbursed;
     setValue("pend_disb_amount", pending >= 0 ? pending : 0);
   }, [sancAmount, totalDisbAmount, setValue]);
+  
+  useEffect(() => {
+    const principal = Number(totalDisbAmount) || 0;
+    const rate = Number(roi) || 0;
+    const tenor = Number(loanTenor) || 0;
+
+    if (principal > 0 && rate > 0 && tenor > 0) {
+      const monthlyRate = rate / 12 / 100;
+      const emi =
+        (principal * monthlyRate * Math.pow(1 + monthlyRate, tenor)) /
+        (Math.pow(1 + monthlyRate, tenor) - 1);
+      
+      setValue("emi_amount", parseFloat(emi.toFixed(2)));
+    } else {
+      // If any value is invalid, you might want to clear the EMI or set to 0
+      // setValue("emi_amount", 0);
+    }
+  }, [totalDisbAmount, roi, loanTenor, setValue]);
 
   async function onSubmit(values: LoanFormValues) {
     setIsSubmitting(true);
@@ -181,7 +201,7 @@ export function LoanForm() {
                     )}
                   />
                   <FormField control={form.control} name="loan_tenor" render={({ field }) => (<FormItem><FormLabel>Loan Tenor (months)</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                  <FormField control={form.control} name="emi_amount" render={({ field }) => (<FormItem><FormLabel>EMI Amount</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                  <FormField control={form.control} name="emi_amount" render={({ field }) => (<FormItem><FormLabel>EMI Amount</FormLabel><FormControl><Input type="number" {...field} readOnly className="bg-gray-100" /></FormControl><FormMessage /></FormItem>)} />
               </div>
             </div>
 
