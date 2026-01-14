@@ -35,15 +35,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogCancel,
-} from "@/components/ui/alert-dialog";
 
 const defaultValues: Partial<LoanFormValues> = {
   callee_name: "",
@@ -72,8 +63,6 @@ const SectionTitle = ({ children }: { children: React.ReactNode }) => (
 export function LoanForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionStatus, setSubmissionStatus] = useState<{success: boolean; message: string} | null>(null);
-  const [isPayloadDialogOpen, setIsPayloadDialogOpen] = useState(false);
-  const [payloadToShow, setPayloadToShow] = useState<string | null>(null);
 
   const form = useForm<LoanFormValues>({
     resolver: zodResolver(loanFormSchema),
@@ -168,52 +157,6 @@ export function LoanForm() {
     }
   }
 
-  async function handleShowPayload() {
-    const isValid = await form.trigger();
-    if (!isValid) {
-      setPayloadToShow("Form is invalid. Please fix the errors before viewing the payload.");
-      setIsPayloadDialogOpen(true);
-      return;
-    }
-    const values = form.getValues();
-    const address_name = (values.callee_name || '').split(' ')[0];
-    const payload = {
-      mobile_number: values.mobile_number,
-      campaign_type: "gold_loan",
-      callee_name: values.callee_name,
-      address_name: address_name,
-      ...values,
-    };
-    // remove callee_name again as it's already in payload
-    delete (payload as Partial<LoanFormValues>).callee_name;
-    // reconstruct to have callee_name and address_name at the top for readability
-     const finalPayload = {
-      mobile_number: payload.mobile_number,
-      campaign_type: payload.campaign_type,
-      callee_name: values.callee_name,
-      address_name: address_name,
-      loan_number: payload.loan_number,
-      sanc_amount: payload.sanc_amount,
-      total_disb_amount: payload.total_disb_amount,
-      pend_disb_amount: payload.pend_disb_amount,
-      proce_fee_amount: payload.proce_fee_amount,
-      tot_ded_amount: payload.tot_ded_amount,
-      roi: payload.roi,
-      loan_tenor: payload.loan_tenor,
-      emi_amount: payload.emi_amount,
-      loan_disb_date: payload.loan_disb_date,
-      emi_due_date: payload.emi_due_date,
-      loan_end_date: payload.loan_end_date,
-      cheq_hand: payload.cheq_hand,
-      payment_mode: payload.payment_mode,
-      terms_agreed: payload.terms_agreed,
-      loan_start_date: payload.loan_start_date,
-    };
-
-    setPayloadToShow(JSON.stringify(finalPayload, null, 2));
-    setIsPayloadDialogOpen(true);
-  }
-
   return (
     <>
       <Card className="w-full shadow-[0_10px_40px_rgba(51,48,69,0.08),0_2px_8px_rgba(51,48,69,0.04)] transition-all hover:shadow-[0_15px_50px_rgba(51,48,69,0.12),0_4px_10px_rgba(51,48,69,0.08)] hover:-translate-y-1">
@@ -275,11 +218,11 @@ export function LoanForm() {
                 <div className="space-y-6">
                   <SectionTitle>Loan Amount Details</SectionTitle>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      <FormField control={form.control} name="sanc_amount" render={({ field }) => (<FormItem><FormLabel>Sanctioned Amount</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(parseFloat(e.target.value) || undefined)} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)} />
-                      <FormField control={form.control} name="total_disb_amount" render={({ field }) => (<FormItem><FormLabel>Total Disbursed Amount</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(parseFloat(e.target.value) || undefined)} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)} />
+                      <FormField control={form.control} name="sanc_amount" render={({ field }) => (<FormItem><FormLabel>Sanctioned Amount</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(e.target.value === '' ? undefined : parseFloat(e.target.value))} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)} />
+                      <FormField control={form.control} name="total_disb_amount" render={({ field }) => (<FormItem><FormLabel>Total Disbursed Amount</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(e.target.value === '' ? undefined : parseFloat(e.target.value))} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)} />
                       <FormField control={form.control} name="pend_disb_amount" render={({ field }) => (<FormItem><FormLabel>Pending Disbursed Amount</FormLabel><FormControl><Input type="number" {...field} readOnly className="bg-gray-100" value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)} />
-                      <FormField control={form.control} name="proce_fee_amount" render={({ field }) => (<FormItem><FormLabel>Processing Fee Amount</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(parseFloat(e.target.value) || undefined)} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)} />
-                      <FormField control={form.control} name="tot_ded_amount" render={({ field }) => (<FormItem><FormLabel>Total Deduction Amount</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(parseFloat(e.target.value) || undefined)} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)} />
+                      <FormField control={form.control} name="proce_fee_amount" render={({ field }) => (<FormItem><FormLabel>Processing Fee Amount</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(e.target.value === '' ? undefined : parseFloat(e.target.value))} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)} />
+                      <FormField control={form.control} name="tot_ded_amount" render={({ field }) => (<FormItem><FormLabel>Total Deduction Amount</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(e.target.value === '' ? undefined : parseFloat(e.target.value))} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)} />
                       <FormField
                         control={form.control}
                         name="roi"
@@ -287,13 +230,13 @@ export function LoanForm() {
                           <FormItem>
                             <FormLabel>Rate of Interest (%)</FormLabel>
                             <FormControl>
-                              <Input type="number" {...field} onChange={e => field.onChange(parseFloat(e.target.value) || undefined)} value={field.value ?? ''} />
+                              <Input type="number" {...field} onChange={e => field.onChange(e.target.value === '' ? undefined : parseFloat(e.target.value))} value={field.value ?? ''} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
                         )}
                       />
-                      <FormField control={form.control} name="loan_tenor" render={({ field }) => (<FormItem><FormLabel>Loan Tenor (months)</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(parseFloat(e.target.value) || undefined)} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)} />
+                      <FormField control={form.control} name="loan_tenor" render={({ field }) => (<FormItem><FormLabel>Loan Tenor (months)</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(e.target.value === '' ? undefined : parseFloat(e.target.value))} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)} />
                       <FormField control={form.control} name="emi_amount" render={({ field }) => (<FormItem><FormLabel>EMI Amount</FormLabel><FormControl><Input type="number" {...field} readOnly className="bg-gray-100" value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)} />
                   </div>
                 </div>
@@ -381,9 +324,6 @@ export function LoanForm() {
                       {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                       Request a Call
                     </Button>
-                    <Button type="button" variant="outline" size="lg" className="w-full" onClick={handleShowPayload}>
-                      Show Payload
-                    </Button>
                   </div>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground mt-2">
                     <Lock className="h-3 w-3" />
@@ -394,24 +334,8 @@ export function LoanForm() {
             </Form>
         </CardContent>
       </Card>
-      <AlertDialog open={isPayloadDialogOpen} onOpenChange={setIsPayloadDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>API Payload</AlertDialogTitle>
-            <AlertDialogDescription>
-              This is the JSON data that would be sent to the API.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <div className="mt-4 max-h-96 overflow-y-auto rounded bg-gray-100 p-4">
-            <pre className="text-sm text-gray-800 whitespace-pre-wrap break-all">
-              <code>{payloadToShow}</code>
-            </pre>
-          </div>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Close</AlertDialogCancel>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </>
   );
 }
+
+    
