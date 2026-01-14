@@ -79,6 +79,11 @@ export function LoanForm() {
   const loanStartDate = watch("loan_start_date");
 
   useEffect(() => {
+    // Generate a random loan number on mount
+    setValue("loan_number", `LN${Math.floor(100000 + Math.random() * 900000)}`);
+  }, [setValue]);
+
+  useEffect(() => {
     const sanctioned = Number(sancAmount) || 0;
     const disbursed = Number(totalDisbAmount) || 0;
     const pending = sanctioned - disbursed;
@@ -176,7 +181,7 @@ export function LoanForm() {
                   name="loan_number"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Loan Number (Optional)</FormLabel>
+                      <FormLabel>Loan Number</FormLabel>
                       <FormControl>
                         <Input placeholder="Enter loan number" {...field} value={field.value ?? ""} />
                       </FormControl>
@@ -237,7 +242,7 @@ export function LoanForm() {
                   name="cheq_hand"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Cheque Handover (Optional)</FormLabel>
+                      <FormLabel>Cheque Handover</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
                           <SelectTrigger>
