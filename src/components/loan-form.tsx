@@ -258,7 +258,7 @@ export function LoanForm() {
                   name="payment_mode"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Payment Mode (Optional)</FormLabel>
+                      <FormLabel>Payment Mode</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
                           <SelectTrigger>

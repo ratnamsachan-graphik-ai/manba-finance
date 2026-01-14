@@ -21,7 +21,7 @@ export const loanFormSchema = z.object({
   loan_end_date: z.string().min(1, { message: "Loan end date is required." }),
   
   cheq_hand: z.string().optional(),
-  payment_mode: z.string().optional(),
+  payment_mode: z.string().min(1, { message: "Payment mode is required." }),
 
   terms_agreed: z.boolean().optional(),
 });
