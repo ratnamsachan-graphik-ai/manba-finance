@@ -42,12 +42,12 @@ const defaultValues: Partial<LoanFormValues> = {
   loan_number: "",
   sanc_amount: undefined,
   total_disb_amount: undefined,
-  pend_disb_amount: undefined,
+  pend_disb_amount: 0,
   proce_fee_amount: undefined,
   tot_ded_amount: undefined,
   roi: undefined,
   loan_tenor: undefined,
-  emi_amount: undefined,
+  emi_amount: 0,
   loan_disb_date: "",
   emi_due_date: "",
   loan_end_date: "",
@@ -67,6 +67,7 @@ export function LoanForm() {
   const form = useForm<LoanFormValues>({
     resolver: zodResolver(loanFormSchema),
     defaultValues,
+    mode: "onChange",
   });
 
   const { watch, setValue } = form;
@@ -320,3 +321,5 @@ export function LoanForm() {
     </Card>
   );
 }
+
+    
