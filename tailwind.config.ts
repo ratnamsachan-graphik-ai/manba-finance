@@ -10,7 +10,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        body: ['Gilroy-Regular', 'sans-serif'],
+        body: ['Roboto', 'sans-serif'],
         headline: ['Gilroy-SemiBold', 'sans-serif'],
         code: ['monospace'],
       },
