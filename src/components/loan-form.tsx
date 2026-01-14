@@ -154,7 +154,7 @@ export function LoanForm() {
                     control={form.control}
                     name="roi"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="flex flex-col justify-center">
                         <FormLabel>Rate of Interest: {field.value}%</FormLabel>
                         <FormControl>
                            <Slider
