@@ -35,7 +35,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Slider } from "@/components/ui/slider";
 
 const defaultValues: Partial<LoanFormValues> = {
   callee_name: "",
@@ -207,16 +206,10 @@ export function LoanForm() {
                     control={form.control}
                     name="roi"
                     render={({ field }) => (
-                      <FormItem className="flex flex-col justify-center">
-                        <FormLabel>Rate of Interest: {field.value}%</FormLabel>
+                      <FormItem>
+                        <FormLabel>Rate of Interest (%)</FormLabel>
                         <FormControl>
-                           <Slider
-                            min={1}
-                            max={20}
-                            step={0.1}
-                            defaultValue={[field.value ?? 8.5]}
-                            onValueChange={(value) => field.onChange(value[0])}
-                          />
+                          <Input type="number" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -321,5 +314,7 @@ export function LoanForm() {
     </Card>
   );
 }
+
+    
 
     
