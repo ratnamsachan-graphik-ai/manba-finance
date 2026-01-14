@@ -51,12 +51,12 @@ const defaultValues: Partial<LoanFormValues> = {
   loan_number: "",
   sanc_amount: undefined,
   total_disb_amount: undefined,
-  pend_disb_amount: 0,
+  pend_disb_amount: undefined,
   proce_fee_amount: undefined,
   tot_ded_amount: undefined,
   roi: undefined,
   loan_tenor: undefined,
-  emi_amount: 0,
+  emi_amount: undefined,
   loan_disb_date: "",
   emi_due_date: "",
   loan_end_date: "",
@@ -248,26 +248,26 @@ export function LoanForm() {
               <div className="space-y-6">
                 <SectionTitle>Loan Amount Details</SectionTitle>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <FormField control={form.control} name="sanc_amount" render={({ field: { onChange, ...rest } }) => (<FormItem><FormLabel>Sanctioned Amount</FormLabel><FormControl><Input type="number" onChange={e => onChange(e.target.valueAsNumber)} {...rest} /></FormControl><FormMessage /></FormItem>)} />
-                    <FormField control={form.control} name="total_disb_amount" render={({ field: { onChange, ...rest } }) => (<FormItem><FormLabel>Total Disbursed Amount</FormLabel><FormControl><Input type="number" onChange={e => onChange(e.target.valueAsNumber)} {...rest} /></FormControl><FormMessage /></FormItem>)} />
-                    <FormField control={form.control} name="pend_disb_amount" render={({ field }) => (<FormItem><FormLabel>Pending Disbursed Amount</FormLabel><FormControl><Input type="number" {...field} readOnly className="bg-gray-100" /></FormControl><FormMessage /></FormItem>)} />
-                    <FormField control={form.control} name="proce_fee_amount" render={({ field: { onChange, ...rest } }) => (<FormItem><FormLabel>Processing Fee Amount</FormLabel><FormControl><Input type="number" onChange={e => onChange(e.target.valueAsNumber)} {...rest} /></FormControl><FormMessage /></FormItem>)} />
-                    <FormField control={form.control} name="tot_ded_amount" render={({ field: { onChange, ...rest } }) => (<FormItem><FormLabel>Total Deduction Amount</FormLabel><FormControl><Input type="number" onChange={e => onChange(e.target.valueAsNumber)} {...rest} /></FormControl><FormMessage /></FormItem>)} />
+                    <FormField control={form.control} name="sanc_amount" render={({ field }) => (<FormItem><FormLabel>Sanctioned Amount</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(e.target.valueAsNumber)} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)} />
+                    <FormField control={form.control} name="total_disb_amount" render={({ field }) => (<FormItem><FormLabel>Total Disbursed Amount</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(e.target.valueAsNumber)} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)} />
+                    <FormField control={form.control} name="pend_disb_amount" render={({ field }) => (<FormItem><FormLabel>Pending Disbursed Amount</FormLabel><FormControl><Input type="number" {...field} readOnly className="bg-gray-100" value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)} />
+                    <FormField control={form.control} name="proce_fee_amount" render={({ field }) => (<FormItem><FormLabel>Processing Fee Amount</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(e.target.valueAsNumber)} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)} />
+                    <FormField control={form.control} name="tot_ded_amount" render={({ field }) => (<FormItem><FormLabel>Total Deduction Amount</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(e.target.valueAsNumber)} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)} />
                     <FormField
                       control={form.control}
                       name="roi"
-                      render={({ field: { onChange, ...rest } }) => (
+                      render={({ field }) => (
                         <FormItem>
                           <FormLabel>Rate of Interest (%)</FormLabel>
                           <FormControl>
-                            <Input type="number" onChange={e => onChange(e.target.valueAsNumber)} {...rest} />
+                            <Input type="number" {...field} onChange={e => field.onChange(e.target.valueAsNumber)} value={field.value ?? ''} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
-                    <FormField control={form.control} name="loan_tenor" render={({ field: { onChange, ...rest } }) => (<FormItem><FormLabel>Loan Tenor (months)</FormLabel><FormControl><Input type="number" onChange={e => onChange(e.target.valueAsNumber)} {...rest} /></FormControl><FormMessage /></FormItem>)} />
-                    <FormField control={form.control} name="emi_amount" render={({ field }) => (<FormItem><FormLabel>EMI Amount</FormLabel><FormControl><Input type="number" {...field} readOnly className="bg-gray-100" /></FormControl><FormMessage /></FormItem>)} />
+                    <FormField control={form.control} name="loan_tenor" render={({ field }) => (<FormItem><FormLabel>Loan Tenor (months)</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(e.target.valueAsNumber)} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)} />
+                    <FormField control={form.control} name="emi_amount" render={({ field }) => (<FormItem><FormLabel>EMI Amount</FormLabel><FormControl><Input type="number" {...field} readOnly className="bg-gray-100" value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)} />
                 </div>
               </div>
 

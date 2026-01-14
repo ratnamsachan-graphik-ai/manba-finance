@@ -7,13 +7,13 @@ export const loanFormSchema = z.object({
   
   sanc_amount: z.coerce.number({invalid_type_error: "Sanctioned amount is required."}).positive({ message: "Amount must be a positive number." }).optional(),
   total_disb_amount: z.coerce.number({invalid_type_error: "Disbursed amount is required."}).positive({ message: "Amount must be a positive number." }),
-  pend_disb_amount: z.coerce.number().nonnegative({ message: "Pending amount cannot be negative." }),
+  pend_disb_amount: z.coerce.number().nonnegative({ message: "Pending amount cannot be negative." }).optional(),
   proce_fee_amount: z.coerce.number({invalid_type_error: "Processing fee is required."}).positive({ message: "Fee must be a positive number." }),
   tot_ded_amount: z.coerce.number({invalid_type_error: "Deduction amount is required."}).nonnegative({ message: "Deduction cannot be negative." }),
   
   roi: z.coerce.number({invalid_type_error: "Rate of interest is required."}).positive({ message: "Rate of interest must be positive." }),
   loan_tenor: z.coerce.number({invalid_type_error: "Loan tenor is required."}).int().positive({ message: "Tenor must be a positive number of months." }),
-  emi_amount: z.coerce.number().positive({ message: "EMI amount must be positive." }),
+  emi_amount: z.coerce.number().positive({ message: "EMI amount must be positive." }).optional(),
   
   loan_disb_date: z.string().min(1, { message: "Loan disbursed date is required." }),
   emi_due_date: z.string().min(1, { message: "First EMI due date is required." }),
