@@ -4,7 +4,7 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { format, addMonths } from "date-fns";
+import { format, addMonths, subMonths } from "date-fns";
 import { Loader2, Lock } from "lucide-react";
 import { loanFormSchema, type LoanFormValues } from "@/app/form-schema";
 import { submitLoanForm } from "@/app/actions";
@@ -49,7 +49,6 @@ const defaultValues: Partial<LoanFormValues> = {
   loan_tenor: undefined,
   emi_amount: 0,
   loan_disb_date: "",
-  loan_start_date: "",
   emi_due_date: "",
   loan_end_date: "",
   cheq_hand: "",
@@ -77,7 +76,7 @@ export function LoanForm() {
   const totalDisbAmount = watch("total_disb_amount");
   const roi = watch("roi");
   const loanTenor = watch("loan_tenor");
-  const loanStartDate = watch("loan_start_date");
+  const emiDueDate = watch("emi_due_date");
 
   useEffect(() => {
     // Generate a random loan number on mount
@@ -103,25 +102,39 @@ export function LoanForm() {
         (Math.pow(1 + monthlyRate, tenor) - 1);
       
       setValue("emi_amount", Math.round(emi));
+    } else {
+       setValue("emi_amount", 0);
     }
   }, [totalDisbAmount, roi, loanTenor, setValue]);
 
   useEffect(() => {
-    const startDate = loanStartDate;
+    const firstEmiDate = emiDueDate;
     const tenor = Number(loanTenor) || 0;
 
-    if (startDate && tenor > 0) {
+    if (firstEmiDate && tenor > 0) {
       try {
-        const start = new Date(startDate);
-        // The time zone offset can cause the date to be off by one day, so we adjust for it.
+        const start = new Date(firstEmiDate);
         const zonedStart = new Date(start.valueOf() + start.getTimezoneOffset() * 60 * 1000);
-        const endDate = addMonths(zonedStart, tenor);
+        
+        // Calculate loan_start_date internally
+        const internalLoanStartDate = subMonths(zonedStart, 1);
+        setValue("loan_start_date", format(internalLoanStartDate, "yyyy-MM-dd"));
+
+        // Calculate loan_end_date from first_emi_due_date
+        const endDate = addMonths(zonedStart, tenor - 1);
         setValue("loan_end_date", format(endDate, "yyyy-MM-dd"));
+
       } catch (e) {
         console.error("Invalid date for calculation", e)
+        setValue("loan_start_date", "");
+        setValue("loan_end_date", "");
       }
+    } else {
+        setValue("loan_start_date", "");
+        setValue("loan_end_date", "");
     }
-  }, [loanStartDate, loanTenor, setValue]);
+  }, [emiDueDate, loanTenor, setValue]);
+
 
   async function onSubmit(values: LoanFormValues) {
     setIsSubmitting(true);
@@ -224,7 +237,6 @@ export function LoanForm() {
               <SectionTitle>Dates & Deadlines</SectionTitle>
                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
                   <FormField control={form.control} name="loan_disb_date" render={({ field }) => (<FormItem><FormLabel>Loan Disbursed Date</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                  <FormField control={form.control} name="loan_start_date" render={({ field }) => (<FormItem><FormLabel>Loan Start Date</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>)} />
                   <FormField control={form.control} name="emi_due_date" render={({ field }) => (<FormItem><FormLabel>First EMI Due Date</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>)} />
                   <FormField control={form.control} name="loan_end_date" render={({ field }) => (<FormItem><FormLabel>Loan End Date</FormLabel><FormControl><Input type="date" {...field} readOnly className="bg-gray-100" /></FormControl><FormMessage /></FormItem>)} />
               </div>
@@ -239,7 +251,7 @@ export function LoanForm() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Cheque Handover</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select status" />
@@ -260,7 +272,7 @@ export function LoanForm() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Payment Mode</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select a payment mode" />
@@ -314,9 +326,3 @@ export function LoanForm() {
     </Card>
   );
 }
-
-    
-
-    
-
-    
