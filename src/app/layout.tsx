@@ -3,7 +3,7 @@ import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
-  title: 'LoanEase Form',
+  title: 'WHFL Welcome Call',
   description: 'This is a demo link and should only be used for demonstration purposes.',
 };
 
