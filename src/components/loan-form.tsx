@@ -62,6 +62,8 @@ const SectionTitle = ({ children }: { children: React.ReactNode }) => (
   <h3 className="text-[24px] font-headline text-primary section-title">{children}</h3>
 );
 
+const generateLoanNumber = () => `LN${Math.floor(100000 + Math.random() * 900000)}`;
+
 export function LoanForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionStatus, setSubmissionStatus] = useState<{success: boolean; message: string} | null>(null);
@@ -80,7 +82,7 @@ export function LoanForm() {
 
   useEffect(() => {
     // Generate a random loan number on mount
-    setValue("loan_number", `LN${Math.floor(100000 + Math.random() * 900000)}`);
+    setValue("loan_number", generateLoanNumber());
   }, [setValue]);
 
   useEffect(() => {
@@ -132,6 +134,7 @@ export function LoanForm() {
 
     if (result.success) {
       form.reset();
+      setValue("loan_number", generateLoanNumber());
     }
   }
 
