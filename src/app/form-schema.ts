@@ -5,11 +5,11 @@ export const loanFormSchema = z.object({
   mobile_number: z.string().regex(/^[0-9]{10}$/, { message: "Please enter a valid 10-digit mobile number." }),
   loan_number: z.string().optional(),
   
-  sanc_amount: z.coerce.number().positive({ message: "Amount must be positive." }),
-  total_disb_amount: z.coerce.number().positive({ message: "Amount must be positive." }),
-  pend_disb_amount: z.coerce.number().nonnegative(),
-  proce_fee_amount: z.coerce.number().positive({ message: "Amount must be positive." }),
-  tot_ded_amount: z.coerce.number().nonnegative(),
+  sanc_amount: z.coerce.number().positive({ message: "Amount must be a positive number." }),
+  total_disb_amount: z.coerce.number().positive({ message: "Amount must be a positive number." }),
+  pend_disb_amount: z.coerce.number().nonnegative({ message: "Pending amount cannot be negative." }),
+  proce_fee_amount: z.coerce.number().positive({ message: "Fee must be a positive number." }),
+  tot_ded_amount: z.coerce.number().nonnegative({ message: "Deduction cannot be negative." }),
   
   roi: z.coerce.number().positive({ message: "Rate of interest must be positive." }),
   loan_tenor: z.coerce.number().int().positive({ message: "Tenor must be a positive number of months." }),
