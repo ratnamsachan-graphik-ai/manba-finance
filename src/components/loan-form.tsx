@@ -4,7 +4,7 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { format, addMonths, subMonths } from "date-fns";
+import { format, addMonths } from "date-fns";
 import { Loader2, Lock } from "lucide-react";
 import { loanFormSchema, type LoanFormValues } from "@/app/form-schema";
 import { submitLoanForm } from "@/app/actions";
@@ -108,13 +108,13 @@ export function LoanForm() {
     if (firstEmiDate && tenor > 0) {
       try {
         const start = new Date(firstEmiDate);
+        // Correct for timezone offset to prevent date from shifting
         const zonedStart = new Date(start.valueOf() + start.getTimezoneOffset() * 60 * 1000);
         
-        // Calculate loan_start_date internally
-        const internalLoanStartDate = subMonths(zonedStart, 1);
-        setValue("loan_start_date", format(internalLoanStartDate, "yyyy-MM-dd"));
+        // As per new rule: loan_start_date = first_emi_due_date
+        setValue("loan_start_date", format(zonedStart, "yyyy-MM-dd"));
 
-        // Calculate loan_end_date from first_emi_due_date
+        // As per new rule: loan_end_date = first_emi_due_date + (tenor - 1) months
         const endDate = addMonths(zonedStart, tenor - 1);
         setValue("loan_end_date", format(endDate, "yyyy-MM-dd"));
 
