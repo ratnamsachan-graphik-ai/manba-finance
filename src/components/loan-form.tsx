@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format, addMonths, subMonths } from "date-fns";
-import { Loader2, Lock, Eye } from "lucide-react";
+import { Loader2, Lock } from "lucide-react";
 import { loanFormSchema, type LoanFormValues } from "@/app/form-schema";
 import { submitLoanForm } from "@/app/actions";
 import { Button } from "@/components/ui/button";
@@ -35,15 +35,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogTrigger,
-  DialogFooter,
-} from "@/components/ui/dialog";
 
 const defaultValues: Partial<LoanFormValues> = {
   callee_name: "",
@@ -74,15 +65,13 @@ const generateLoanNumber = () => `LN${Math.floor(100000 + Math.random() * 900000
 export function LoanForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionStatus, setSubmissionStatus] = useState<{success: boolean; message: string} | null>(null);
-  const [showPayloadDialog, setShowPayloadDialog] = useState(false);
-  const [payloadToShow, setPayloadToShow] = useState<object>({});
 
   const form = useForm<LoanFormValues>({
     resolver: zodResolver(loanFormSchema),
     defaultValues,
   });
 
-  const { watch, setValue, getValues } = form;
+  const { watch, setValue } = form;
   const sancAmount = watch("sanc_amount");
   const totalDisbAmount = watch("total_disb_amount");
   const roi = watch("roi");
@@ -161,32 +150,6 @@ export function LoanForm() {
     }
   }
 
-  const handleShowPayload = () => {
-    const data = getValues();
-    const ringgPayload = {
-      mobile_number: data.mobile_number,
-      campaign_type: "gold_loan",
-      callee_name: data.callee_name,
-      loan_number: data.loan_number,
-      sanc_amount: data.sanc_amount,
-      total_disb_amount: data.total_disb_amount,
-      pend_disb_amount: data.pend_disb_amount,
-      proce_fee_amount: data.proce_fee_amount,
-      tot_ded_amount: data.tot_ded_amount,
-      roi: data.roi,
-      loan_tenor: data.loan_tenor,
-      emi_amount: data.emi_amount,
-      loan_disb_date: data.loan_disb_date,
-      loan_start_date: data.loan_start_date,
-      emi_due_date: data.emi_due_date,
-      loan_end_date: data.loan_end_date,
-      cheq_hand: data.cheq_hand,
-      payment_mode: data.payment_mode,
-    };
-    setPayloadToShow(ringgPayload);
-    setShowPayloadDialog(true);
-  };
-
   return (
     <Card className="w-full shadow-[0_10px_40px_rgba(51,48,69,0.08),0_2px_8px_rgba(51,48,69,0.04)] transition-all hover:shadow-[0_15px_50px_rgba(51,48,69,0.12),0_4px_10px_rgba(51,48,69,0.08)] hover:-translate-y-1">
       <CardHeader>
@@ -196,7 +159,6 @@ export function LoanForm() {
         </CardDescription>
       </CardHeader>
       <CardContent className="p-10">
-        <Dialog open={showPayloadDialog} onOpenChange={setShowPayloadDialog}>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               
@@ -354,10 +316,6 @@ export function LoanForm() {
                     {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Request a Call
                   </Button>
-                  <Button type="button" variant="outline" size="lg" className="w-full" onClick={handleShowPayload}>
-                    <Eye className="mr-2 h-4 w-4" />
-                    Show Payload
-                  </Button>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-muted-foreground mt-2">
                   <Lock className="h-3 w-3" />
@@ -366,28 +324,7 @@ export function LoanForm() {
               </CardFooter>
             </form>
           </Form>
-          <DialogContent className="sm:max-w-[625px]">
-            <DialogHeader>
-              <DialogTitle>Ringg API Payload</DialogTitle>
-              <DialogDescription>
-                This is the JSON payload that will be sent to the Ringg API.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="mt-4">
-              <pre className="p-4 bg-muted rounded-md text-xs overflow-x-auto">
-                <code>{JSON.stringify(payloadToShow, null, 2)}</code>
-              </pre>
-            </div>
-            <DialogFooter>
-              <Button variant="secondary" onClick={() => setShowPayloadDialog(false)}>
-                Close
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
       </CardContent>
     </Card>
   );
 }
-
-    
