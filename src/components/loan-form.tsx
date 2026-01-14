@@ -40,20 +40,20 @@ const defaultValues: Partial<LoanFormValues> = {
   callee_name: "",
   mobile_number: "",
   loan_number: "",
-  sanc_amount: 500000,
-  total_disb_amount: 450000,
-  pend_disb_amount: 50000,
-  proce_fee_amount: 5000,
-  tot_ded_amount: 1000,
-  roi: 8.5,
-  loan_tenor: 240,
-  emi_amount: 4339,
-  loan_disb_date: "2026-01-15",
-  loan_start_date: "2026-02-01",
-  emi_due_date: "2026-03-01",
-  loan_end_date: "2046-02-01",
-  cheq_hand: "Recieved",
-  payment_mode: "NACH",
+  sanc_amount: undefined,
+  total_disb_amount: undefined,
+  pend_disb_amount: 0,
+  proce_fee_amount: undefined,
+  tot_ded_amount: undefined,
+  roi: undefined,
+  loan_tenor: undefined,
+  emi_amount: 0,
+  loan_disb_date: "",
+  loan_start_date: "",
+  emi_due_date: "",
+  loan_end_date: "",
+  cheq_hand: "",
+  payment_mode: "",
   terms_agreed: false,
 };
 
@@ -197,11 +197,11 @@ export function LoanForm() {
             <div className="space-y-6">
               <SectionTitle>Loan Amount Details</SectionTitle>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  <FormField control={form.control} name="sanc_amount" render={({ field }) => (<FormItem><FormLabel>Sanctioned Amount</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                  <FormField control={form.control} name="total_disb_amount" render={({ field }) => (<FormItem><FormLabel>Total Disbursed Amount</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                  <FormField control={form.control} name="sanc_amount" render={({ field }) => (<FormItem><FormLabel>Sanctioned Amount</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(e.target.value === '' ? undefined : e.target.valueAsNumber)} /></FormControl><FormMessage /></FormItem>)} />
+                  <FormField control={form.control} name="total_disb_amount" render={({ field }) => (<FormItem><FormLabel>Total Disbursed Amount</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(e.target.value === '' ? undefined : e.target.valueAsNumber)} /></FormControl><FormMessage /></FormItem>)} />
                   <FormField control={form.control} name="pend_disb_amount" render={({ field }) => (<FormItem><FormLabel>Pending Disbursed Amount</FormLabel><FormControl><Input type="number" {...field} readOnly className="bg-gray-100" /></FormControl><FormMessage /></FormItem>)} />
-                  <FormField control={form.control} name="proce_fee_amount" render={({ field }) => (<FormItem><FormLabel>Processing Fee Amount</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                  <FormField control={form.control} name="tot_ded_amount" render={({ field }) => (<FormItem><FormLabel>Total Deduction Amount</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                  <FormField control={form.control} name="proce_fee_amount" render={({ field }) => (<FormItem><FormLabel>Processing Fee Amount</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(e.target.value === '' ? undefined : e.target.valueAsNumber)} /></FormControl><FormMessage /></FormItem>)} />
+                  <FormField control={form.control} name="tot_ded_amount" render={({ field }) => (<FormItem><FormLabel>Total Deduction Amount</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(e.target.value === '' ? undefined : e.target.valueAsNumber)} /></FormControl><FormMessage /></FormItem>)} />
                   <FormField
                     control={form.control}
                     name="roi"
@@ -209,13 +209,13 @@ export function LoanForm() {
                       <FormItem>
                         <FormLabel>Rate of Interest (%)</FormLabel>
                         <FormControl>
-                          <Input type="number" {...field} />
+                          <Input type="number" {...field} onChange={e => field.onChange(e.target.value === '' ? undefined : e.target.valueAsNumber)} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                  <FormField control={form.control} name="loan_tenor" render={({ field }) => (<FormItem><FormLabel>Loan Tenor (months)</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                  <FormField control={form.control} name="loan_tenor" render={({ field }) => (<FormItem><FormLabel>Loan Tenor (months)</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(e.target.value === '' ? undefined : e.target.valueAsNumber)} /></FormControl><FormMessage /></FormItem>)} />
                   <FormField control={form.control} name="emi_amount" render={({ field }) => (<FormItem><FormLabel>EMI Amount</FormLabel><FormControl><Input type="number" {...field} readOnly className="bg-gray-100" /></FormControl><FormMessage /></FormItem>)} />
               </div>
             </div>
@@ -314,6 +314,8 @@ export function LoanForm() {
     </Card>
   );
 }
+
+    
 
     
 
