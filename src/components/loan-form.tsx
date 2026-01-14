@@ -234,7 +234,17 @@ export function LoanForm() {
             </div>
             
             {submissionStatus && (
-              <Alert variant={submissionStatus.success ? "default" : "destructive"} className={submissionStatus.success ? "bg-green-100 border-green-400 text-green-700" : ""}>
+              <Alert 
+                variant={submissionStatus.success ? "default" : "destructive"} 
+                className={`
+                  ${submissionStatus.success ? "bg-green-100 border-green-400 text-green-700" : ""}
+                  data-[state=open]:animate-in data-[state=closed]:animate-out 
+                  data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 
+                  data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 
+                  data-[side=bottom]:slide-in-from-top-[100%] data-[side=top]:slide-out-to-top-[100%]
+                `}
+                data-state={submissionStatus ? "open" : "closed"}
+                >
                 <AlertTitle>{submissionStatus.success ? "Success!" : "Error"}</AlertTitle>
                 <AlertDescription>
                   {submissionStatus.message}
