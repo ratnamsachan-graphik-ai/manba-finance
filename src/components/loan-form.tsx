@@ -57,7 +57,7 @@ const defaultValues: Partial<LoanFormValues> = {
 };
 
 const SectionTitle = ({ children }: { children: React.ReactNode }) => (
-  <h3 className="text-[24px] font-headline text-primary section-title">{children}</h3>
+  <h3 className="text-[24px] font-semibold text-foreground section-title">{children}</h3>
 );
 
 export function LoanForm() {
@@ -161,7 +161,7 @@ export function LoanForm() {
     <>
       <Card className="w-full shadow-[0_10px_40px_rgba(51,48,69,0.08),0_2px_8px_rgba(51,48,69,0.04)] transition-all hover:shadow-[0_15px_50px_rgba(51,48,69,0.12),0_4px_10px_rgba(51,48,69,0.08)] hover:-translate-y-1">
         <CardHeader>
-          <CardTitle className="text-[44px] font-bold text-center font-headline text-accent">Request a Call</CardTitle>
+          <CardTitle className="text-[44px] font-bold text-center text-primary">Request a Call</CardTitle>
           <CardDescription className="text-center">
             Please share your details to get an instant callback from our executive.
           </CardDescription>
@@ -266,7 +266,7 @@ export function LoanForm() {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="Recieved">Recieved</SelectItem>
+                              <SelectItem value="Received">Received</SelectItem>
                               <SelectItem value="Non Recieved">Non Recieved</SelectItem>
                             </SelectContent>
                           </Select>
@@ -337,5 +337,3 @@ export function LoanForm() {
     </>
   );
 }
-
-    

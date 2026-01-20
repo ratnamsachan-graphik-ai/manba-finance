@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 body {
-  font-family: 'Gilroy-SemiBold', Arial, Helvetica, sans-serif;
+  font-family: 'ui-sans-serif', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
 @layer base {
@@ -14,13 +14,13 @@ body {
     --card-foreground: 165 47% 12%;
     --popover: 0 0% 100%;
     --popover-foreground: 165 47% 12%;
-    --primary: 165 47% 12%;
+    --primary: 141 100% 35%;
     --primary-foreground: 0 0% 98%;
     --secondary: 0 0% 96.1%;
     --secondary-foreground: 0 0% 9%;
     --muted: 0 0% 96.1%;
     --muted-foreground: 0 0% 45.1%;
-    --accent: 141 100% 35%;
+    --accent: 165 47% 12%;
     --accent-foreground: 0 0% 98%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
@@ -88,13 +88,13 @@ body {
 }
 
 .gradient-button {
-  background-image: linear-gradient(to right, hsl(var(--accent)), hsl(var(--accent) / 0.8));
+  background-image: linear-gradient(to right, hsl(var(--primary)), hsl(var(--primary) / 0.8));
   transition: all 0.3s ease;
 }
 
 .gradient-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 15px hsla(var(--accent) / 0.3);
+  box-shadow: 0 4px 15px hsla(var(--primary) / 0.3);
 }
 
 .section-title {
@@ -110,7 +110,7 @@ body {
   transform: translateY(-50%);
   height: 80%;
   width: 4px;
-  background-color: hsl(var(--accent));
+  background-color: hsl(var(--primary));
   border-radius: 2px;
 }
 
