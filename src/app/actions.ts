@@ -98,7 +98,8 @@ export async function submitLoanForm(data: LoanFormValues) {
     };
 
     // --- External API Call ---
-    const response = await fetch(`${apiUrl}/ca/api/v0/calling/outbound/individual`, {
+    const fullApiUrl = `${apiUrl}/ca/api/v0/calling/outbound/individual`;
+    const response = await fetch(fullApiUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -124,6 +125,9 @@ export async function submitLoanForm(data: LoanFormValues) {
   } catch (error) {
     console.error("Fatal error in submitLoanForm:", error);
     const errorMessage = error instanceof Error ? error.message : "An unknown server error occurred.";
+    if (errorMessage.includes("fetch failed")) {
+        return { success: false, message: "Error: Could not connect to the call service. Please verify the `NEXT_PUBLIC_CALL_API_URL` environment variable is correct and the service is reachable." };
+    }
     return { success: false, message: `An error occurred while initiating the call. ${errorMessage}` };
   }
 }
