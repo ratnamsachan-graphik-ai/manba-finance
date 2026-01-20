@@ -39,6 +39,12 @@ const nextConfig: NextConfig = {
         hostname: 'ik.imagekit.io',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'prosperity-finanace-gender.vercel.app',
+        port: '',
+        pathname: '/**',
       }
     ],
   },
