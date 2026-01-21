@@ -45,6 +45,12 @@ const nextConfig: NextConfig = {
         hostname: 'prosperity-finanace-gender.vercel.app',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.manbafinance.com',
+        port: '',
+        pathname: '/**',
       }
     ],
   },
