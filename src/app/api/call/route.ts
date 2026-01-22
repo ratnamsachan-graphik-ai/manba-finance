@@ -15,23 +15,6 @@ export async function POST(request: NextRequest) {
       mobile_number,
       campaign_type = "gold_loan",
       callee_name,
-      previous_branch,
-      // Additional loan form fields
-      loan_number,
-      sanc_amount,
-      total_disb_amount,
-      pend_disb_amount,
-      proce_fee_amount,
-      tot_ded_amount,
-      roi,
-      loan_tenor,
-      emi_amount,
-      loan_disb_date,
-      loan_start_date,
-      emi_due_date,
-      loan_end_date,
-      cheq_hand,
-      payment_mode,
     } = body;
 
     // Validate required fields
@@ -46,16 +29,6 @@ export async function POST(request: NextRequest) {
         { error: "Callee name is required" },
         { status: 400 }
       );
-    }
-
-    // Validate Winback-specific fields
-    if (campaign_type === "winback") {
-      if (!previous_branch) {
-        return NextResponse.json(
-          { error: "Previous branch is required for Winback campaign" },
-          { status: 400 }
-        );
-      }
     }
 
     // Validate mobile number format
@@ -89,29 +62,8 @@ export async function POST(request: NextRequest) {
     // Translate names to Hindi
     let calleeNameHindi = callee_name;
     let addressNameHindi = callee_name.split(' ')[0]; // Default to first name
-    let previousBranchHindi = previous_branch || "";
 
     try {
-      if (campaign_type === "winback" && previous_branch) {
-        // For winback campaign, translate both name and branch
-        const translation =
-          await nameTransliterationService.translateWinbackData(
-            callee_name,
-            previous_branch
-          );
-
-        calleeNameHindi = translation.customerNameHindi;
-        addressNameHindi = translation.addressNameHindi;
-        previousBranchHindi = translation.branchNameHindi;
-
-        console.log("[API] Winback translations:", {
-          calleeName: `${callee_name} → ${calleeNameHindi}`,
-          addressName: `First name → ${addressNameHindi}`,
-          previousBranch: `${previous_branch} → ${previousBranchHindi}`,
-          processingTime: `${translation.processingTime}ms`,
-        });
-      } else {
-        // For regular campaign, just translate the customer name
         const translation =
           await nameTransliterationService.translateCustomerName(callee_name);
 
@@ -123,7 +75,6 @@ export async function POST(request: NextRequest) {
           addressName: `First name → ${addressNameHindi}`,
           processingTime: `${translation.processingTime}ms`,
         });
-      }
     } catch (error) {
       console.error(
         "[API] Translation failed, using original values:",
@@ -169,28 +120,6 @@ export async function POST(request: NextRequest) {
       current_date_time: new Date().toISOString(),
       max_rpg_our: 8787,
     };
-
-    // Add loan-specific fields if they exist
-    if (loan_number) custom_args_values.loan_number = loan_number;
-    if (sanc_amount) custom_args_values.sanc_amount = sanc_amount;
-    if (total_disb_amount) custom_args_values.total_disb_amount = total_disb_amount;
-    if (pend_disb_amount) custom_args_values.pend_disb_amount = pend_disb_amount;
-    if (proce_fee_amount) custom_args_values.proce_fee_amount = proce_fee_amount;
-    if (tot_ded_amount) custom_args_values.tot_ded_amount = tot_ded_amount;
-    if (roi) custom_args_values.roi = roi;
-    if (loan_tenor) custom_args_values.loan_tenor = loan_tenor;
-    if (emi_amount) custom_args_values.emi_amount = emi_amount;
-    if (loan_disb_date) custom_args_values.loan_disb_date = loan_disb_date;
-    if (loan_start_date) custom_args_values.loan_start_date = loan_start_date;
-    if (emi_due_date) custom_args_values.emi_due_date = emi_due_date;
-    if (loan_end_date) custom_args_values.loan_end_date = loan_end_date;
-    if (cheq_hand) custom_args_values.cheq_hand = cheq_hand;
-    if (payment_mode) custom_args_values.payment_mode = payment_mode;
-
-    // Add winback-specific fields
-    if (campaign_type === "winback" && previous_branch) {
-      custom_args_values.previous_branch = previousBranchHindi || previous_branch;
-    }
 
     payload.custom_args_values = custom_args_values;
 

@@ -14,7 +14,7 @@ function getAgentId(campaignType: string = "gold_loan"): string {
 
 export async function submitLoanForm(data: LoanFormValues) {
   try {
-    const { mobile_number, callee_name, ...loanFields } = data;
+    const { mobile_number, callee_name } = data;
     const campaign_type = "gold_loan"; // Hardcoded for this form
 
     // --- Validation ---
@@ -64,7 +64,6 @@ export async function submitLoanForm(data: LoanFormValues) {
     
     // --- API Payload ---
     const custom_args_values = {
-      ...loanFields,
       callee_name: calleeNameHindi,
       callee_name_hindi: calleeNameHindi,
       address_name: addressNameHindi,
